@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package org.janusgraph.graphdb.hbase;
+package org.janusgraph.graphdb.hbase.olap;
 
 import org.janusgraph.HBaseStorageSetup;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
