@@ -11,9 +11,9 @@
     <url>http://janusgraph.org</url>
     <properties>
         <top.level.basedir>${basedir}/..</top.level.basedir>
-        <solr7.test.version>7.0.0</solr7.test.version>
-        <solr6.test.version>6.6.1</solr6.test.version>
-        <solr5.test.version>5.5.4</solr5.test.version>
+        <solr7.test.version>7.5.0</solr7.test.version>
+        <solr6.test.version>6.6.5</solr6.test.version>
+        <solr5.test.version>5.5.5</solr5.test.version>
         <solr.test.version>${solr7.test.version}</solr.test.version>
         <skip.solr.test>${skipTests}</skip.solr.test>
     </properties>
