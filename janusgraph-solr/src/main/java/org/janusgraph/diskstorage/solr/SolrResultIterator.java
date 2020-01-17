@@ -27,10 +27,14 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.StreamingResponseCallback;
 import org.apache.solr.common.SolrDocument;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author David Clement (david.clement90@laposte.net)
  */
 class SolrResultIterator<E> implements Iterator<E> {
+    private static final Logger logger = LoggerFactory.getLogger(SolrResultIterator.class);
 
     private final SolrClient solrClient;
     private final BlockingQueue<E> queue;

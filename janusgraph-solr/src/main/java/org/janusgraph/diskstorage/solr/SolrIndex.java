@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -37,6 +38,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -623,6 +625,9 @@ public class SolrIndex implements IndexProvider {
                 solrQuery.addSort(new SolrQuery.SortClause(item, order));
             }
         }
+        // enforce a default sort order, otherwise the streaming response may contain unexpected duplicates
+        //solrQuery.addSort(new SolrQuery.SortClause(DEFAULT_ID_FIELD, SolrQuery.ORDER.asc));
+
         solrQuery.setStart(0);
         if (query.hasLimit()) {
             solrQuery.setRows(Math.min(query.getLimit(), batchSize));
@@ -638,7 +643,32 @@ public class SolrIndex implements IndexProvider {
         try {
             final SolrResultIterator<E> resultIterator = new SolrResultIterator<>(solrClient, limit, offset,
                 solrQuery.getRows(), collection, solrQuery, function);
-            return StreamSupport.stream(Spliterators.spliteratorUnknownSize(resultIterator, Spliterator.ORDERED),
+
+            final ArrayList<E> list = new ArrayList<>();
+            final ArrayList<String> sorted = new ArrayList<>();
+            final TreeSet<String> unique = new TreeSet<>();
+            while (resultIterator.hasNext()) {
+                final E e = resultIterator.next();
+                list.add(e);
+                final String s = e.toString();
+                sorted.add(s);
+                unique.add(s);
+            }
+            Collections.sort(sorted);
+            logger.debug(String.format("collection: %s, query: %s", collection, Arrays.asList(solrQuery.getFilterQueries())));
+            logger.debug(String.format("limit: %s, offset: %s, rows: %s", limit, offset, solrQuery.getRows()));
+            logger.debug(String.format("result size=%s, unique=%s", list.size(), unique.size()));
+            logger.debug(String.format("stream:  %s", String.format("%.100s", list.toString())));
+            logger.debug(String.format("sorted:  %s", String.format("%.100s", sorted.toString())));
+            logger.debug(String.format("unique:  %s", String.format("%.100s", unique.toString())));
+            System.out.println(String.format("collection: %s, query: %s", collection, Arrays.asList(solrQuery.getFilterQueries())));
+            System.out.println(String.format("limit: %s, offset: %s, rows: %s", limit, offset, solrQuery.getRows()));
+            System.out.println(String.format("result size=%s, unique=%s", list.size(), unique.size()));
+            System.out.println(String.format("stream:  %s", String.format("%.100s", list.toString())));
+            System.out.println(String.format("sorted:  %s", String.format("%.100s", sorted.toString())));
+            System.out.println(String.format("unique:  %s", String.format("%.100s", unique.toString())));
+
+            return StreamSupport.stream(Spliterators.spliteratorUnknownSize(list.iterator(), Spliterator.ORDERED),
                 false);
         } catch (final IOException | UncheckedIOException e) {
             logger.error("Query did not complete : ", e);
